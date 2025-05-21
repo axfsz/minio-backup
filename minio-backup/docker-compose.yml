@@ -1,0 +1,39 @@
+version: "3.8"
+
+services:
+  minio-backup:
+    build: .
+    container_name: minio-backup
+    volumes:
+      - /data/neo4j:/data:ro            # 本地需要备份的数据挂载到容器中，确保有读取权限
+      - ./backup:/app                   # 备份脚本目录，建议保持与项目结构一致
+    environment:
+      # MinIO 连接配置
+      - MINIO_ENDPOINT=http://172.16.100.252:9000  # MinIO API 端口，通常为9000
+      - MINIO_ACCESS_KEY=lp6rXjPAqsBM69bmJBcQ      # 建议生产环境通过环境变量或 secrets 管理
+      - MINIO_SECRET_KEY=kqc3qnlBEz6gYf2DmzFphjoGS3LHLIULx2RJqNBL
+      - BUCKET_NAME=my-neo4j-back
+      - LOCAL_BACKUP_DIR=/data
+      - UPLOAD_PREFIX=auto/                         # 上传到 MinIO 的路径前缀
+      - MINIO_SECURE=false                          # 是否使用 HTTPS，true/false
+      - TZ=Asia/Shanghai                            # 设置容器时区为上海
+      # 重试配置
+      - MAX_RETRIES=3                               # 上传失败时的最大重试次数
+      - RETRY_DELAY=5                               # 重试间隔（秒）
+      # 大文件处理配置
+      - MULTIPART_THRESHOLD=10485760                # 分块上传阈值（10MB）
+      - MULTIPART_CHUNKSIZE=5242880                 # 分块大小（5MB）
+    # 运行模式说明：
+    # 1. 自动监听目录变动并实时备份（默认）
+    #    command: ["python3", "/app/upload_backup_to_minio.py", "--watch"]
+    # 2. 手动备份指定目录（适合定时任务或一次性备份）
+    #    command: ["python3", "/app/upload_backup_to_minio.py", "--backup-dir", "/your/data/dir"]
+    # 如需切换模式，请取消对应 command 行的注释并注释掉其他行
+    command: ["python3", "/app/upload_backup_to_minio.py", "--watch"]
+
+# 使用说明：
+# - 请确保 /data/neo4j 目录存在且有读取权限。
+# - 如需备份其他目录，请修改 volumes 挂载路径和 LOCAL_BACKUP_DIR 环境变量。
+# - 推荐将敏感信息（如 MINIO_ACCESS_KEY/SECRET_KEY）通过 .env 文件或 Docker secrets 管理。
+# - 更多参数说明和常见问题请参考 README.md。
+
