@@ -9,9 +9,9 @@ services:
       - ./backup:/app                   # 备份脚本目录，建议保持与项目结构一致
     environment:
       # MinIO 连接配置
-      - MINIO_ENDPOINT=http://172.16.100.252:9000  # MinIO API 端口，通常为9000
-      - MINIO_ACCESS_KEY=lp6rXjPAqsBM69bmJBcQ      # 建议生产环境通过环境变量或 secrets 管理
-      - MINIO_SECRET_KEY=kqc3qnlBEz6gYf2DmzFphjoGS3LHLIULx2RJqNBL
+      - MINIO_ENDPOINT=http://172.16.105.252:9000  # MinIO API 端口，通常为9000
+      - MINIO_ACCESS_KEY=lp6rXjPAqsBM69bmJBcQwww      # 建议生产环境通过环境变量或 secrets 管理
+      - MINIO_SECRET_KEY=kqc3qnlBEz6gYf2DmzFphjoGS3LHLIULx2RJqNBLwwww
       - BUCKET_NAME=my-neo4j-back
       - LOCAL_BACKUP_DIR=/data
       - UPLOAD_PREFIX=auto/                         # 上传到 MinIO 的路径前缀
